@@ -5,9 +5,11 @@
 #'
 #'@examples
 #'
-#'   y <- c(rnorm(100, mean=-1, sd=2), rnorm(100, mean=1, sd=2))
-#'   x <- c(rep("m", 100), rep("f", 100))
-#' 
+##'  df <- data.frame(
+#'     y = c(rnorm(100, mean=-1, sd=2), rnorm(100, mean=1, sd=2))
+#'     x = c(rep("m", 100), rep("f", 100))
+#'  )
+#'  
 #'   nulldist <- fastNullDistRMean(y ~ x, data=df, n=10000)
 #' 
 #' ## is a subsitution for
@@ -17,28 +19,23 @@
 #'   
 #' @export
 
-fastSimNullDistRMean <- function(formula, data=NULL, n=10000) {
-    # todo:
-    # check if right hand side (rhs) is a factor with to levels
-    form_lhs <- lhs(formula)
-    form_rhs <- rhs(formula)
-    chr_lhs <- as.character(lhs(formula))
-    chr_rhs <- as.character(rhs(formula))
-    #
-    if (!is.null(data) && (chr_rhs %in% names(data))) {
-        fkts <- as.factor(data[,chr_rhs])
-    } else {
-        fkts <- as.factor(eval(form_rhs))
+fastSimNullDistRMean <- function(formula, data = parent.frame(), only.2=TRUE, n=10000) {
+    chr_lhs <- force(as.character(lhs(formula)))
+    chr_rhs <- force(as.character(rhs(formula)))
+    if (is.environment(data)) {
+        assign("chr_lhs", chr_lhs, data)
+        assign("chr_rhs", chr_rhs, data)
     }
+    fkts <- as.factor(with(data, get(chr_rhs)))
+    # currently not supported!
+    stopifnot(only.2)
     # We need exactly 2 levels!
     stopifnot(length(levels(fkts)) == 2)
     
-    fkt <- as.integer(fkts) -1
-    if (!is.null(data) && (chr_lhs %in% names(data))) {
-        dta <- data[,chr_lhs]
-    } else {
-        dta <- eval(form_lhs)
-    }
+    fkt <- as.integer(fkts) - 1
+    
+    dta <- with(data, get(chr_lhs))
+
     # We need numeric data!
     stopifnot(is.numeric(dta))
 

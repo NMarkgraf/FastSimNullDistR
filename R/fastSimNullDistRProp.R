@@ -6,7 +6,7 @@
 #'@examples
 #' 
 #'  df <- data.frame(
-#'     y = rbinom(200, size=1, prop=0.4),
+#'     y = rbinom(200, size=1, prob=0.4),
 #'     x = c(rep("m", 100), rep("f", 100))
 #'  )
 #'   
@@ -19,29 +19,20 @@
 #'   
 #' @export
 
-fastSimNullDistRProp <- function(formula, success=NULL, data=NULL, n=10000) {
+fastSimNullDistRProp <- function(formula, success=NULL, data = parent.frame(), only.2=TRUE, n=10000) {
     stopifnot(!is.null(success))
-    # todo:
-    # check if right hand side (rhs) is a factor with to levels
-    form_lhs <- lhs(formula)
-    form_rhs <- rhs(formula)
-    chr_lhs <- as.character(lhs(formula))
-    chr_rhs <- as.character(rhs(formula))
-    #
-    if (!is.null(data) && (chr_rhs %in% names(data))) {
-        fkts <- as.factor(data[,chr_rhs])
-    } else {
-        fkts <- as.factor(eval(form_rhs))
+    chr_lhs <- force(as.character(lhs(formula)))
+    chr_rhs <- force(as.character(rhs(formula)))
+    if (is.environment(data)) {
+        assign("chr_lhs", chr_lhs, data)
+        assign("chr_rhs", chr_rhs, data)
     }
+    fkts <- as.factor(with(data, get(chr_rhs)))
     # We need exactly 2 levels!
     stopifnot(length(levels(fkts)) == 2)
     
-    fkt <- as.integer(fkts) -1
-    if (!is.null(data) && (chr_lhs %in% names(data))) {
-        dtas <- data[,chr_lhs]
-    } else {
-        dtas <- eval(form_lhs)
-    }
+    fkt <- as.integer(fkts) - 1
+    dtas <- with(data, get(chr_lhs))
     # We need numeric data!
     #stopifnot(!is.numeric(dtas))
 
