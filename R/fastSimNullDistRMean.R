@@ -5,7 +5,7 @@
 #'
 #'@examples
 #'
-##'  df <- data.frame(
+#'  df <- data.frame(
 #'     y = c(rnorm(100, mean=-1, sd=2), rnorm(100, mean=1, sd=2))
 #'     x = c(rep("m", 100), rep("f", 100))
 #'  )
@@ -39,26 +39,6 @@ fastSimNullDistRMean <- function(formula, data = parent.frame(), only.2=TRUE, n=
     # We need numeric data!
     stopifnot(is.numeric(dta))
 
-    counter <- 0
-    
-    N <- length(dta)
-    N1 <- sum(fkt)
-    N2 <- N - N1
+    data.frame(diffmean = fastSimNullDistR_work(fkt, dta, n))
 
-    total <- sum(dta)
-    retVec <- vector("numeric", n)
-
-    fkt_cur <- fkt
-
-    while(counter < n) {
-        counter <- counter + 1
-        total_n1 <- sum(fkt_cur * dta)
-        total_n2 <- total - total_n1
-        retVec[counter] <- (total_n1 / N1 - total_n2 / N2)
-        #        fkt_cur <- shuffle(fkt)  # use mosiac::shuffle
-        #        fkt_cur <- shuffle(fkt_cur)  # use mosiac::shuffle (???)
-        fkt_cur <- base::sample(fkt)  # use base::sample
-        #       fkt_cur <- base::sample(fkt_cur)  # use base::sample (???)
-    }
-    data.frame(diffmean = retVec)
 }

@@ -2,6 +2,7 @@
 library(mosaic, quietly = TRUE)
 library(mosaicCore, quietly = TRUE)
 
+source("R/fastSimNullDistR_work.R")
 source("R/fastSimNullDistRMean.R")
 
 TheSeed <- 1848
